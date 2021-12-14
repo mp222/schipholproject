@@ -1,0 +1,20 @@
+models/schiphol/SchipholHttpResponseValues.java
+ models.schiphol.SchipholHttpResponseValues
+models/schiphol/DestinationsResponse.java
+ models.schiphol.DestinationsResponse
+models/schiphol/DestinationsData.java
+ models.schiphol.DestinationsData
+models/schiphol/FlightsData.java
+ models.schiphol.FlightsData
+models/schiphol/FlightsResponse.java
+ models.schiphol.FlightsResponse
+models/schiphol/Route.java
+ models.schiphol.Route
+models/schiphol/AircraftType.java
+ models.schiphol.AircraftType
+models/schiphol/SchipholContext.java
+ models.schiphol.SchipholContext
+models/schiphol/PublicName.java
+ models.schiphol.PublicName
+rest/schiphol/SchipholRequests.java
+ rest.schiphol.SchipholRequests

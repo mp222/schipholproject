@@ -1,0 +1,104 @@
+plugins {
+    id 'java'
+    id 'checkstyle'
+    id "org.sonarqube" version "2.7"
+    id "com.github.spacialcircumstances.gradle-cucumber-reporting" version "0.1.21"
+}
+
+sourceCompatibility = 11
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    def springBootVersion = "2.0.4.RELEASE"
+
+    testImplementation "org.testng:testng:6.14.3"
+    testImplementation "javax.xml.bind:jaxb-api:2.3.1"
+    testImplementation "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
+    testImplementation "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+    testImplementation "org.springframework:spring-tx:5.0.8.RELEASE"
+
+    def cucumberVersion = "1.2.5"
+    testImplementation "info.cukes:cucumber-core:$cucumberVersion"
+    testImplementation "info.cukes:cucumber-testng:$cucumberVersion"
+    testImplementation "info.cukes:cucumber-java:$cucumberVersion"
+    testImplementation "info.cukes:cucumber-spring:$cucumberVersion"
+
+    testImplementation "io.rest-assured:rest-assured:3.3.0"
+    testImplementation "org.hamcrest:hamcrest-all:1.3"
+
+    testImplementation "org.assertj:assertj-core:3.10.0"
+    testImplementation "org.apache.commons:commons-lang3:3.9"
+    testImplementation "javax.activation:activation:1.1"
+    testImplementation "javax.xml.bind:jaxb-api:2.3.1"
+    testImplementation "org.glassfish.jaxb:jaxb-runtime:2.3.1"
+    testImplementation "com.opencsv:opencsv:4.6"
+    testImplementation 'org.awaitility:awaitility:4.0.1'
+    testImplementation "com.fasterxml.jackson.core:jackson-databind:2.0.1"
+    testCompileOnly "org.projectlombok:lombok:1.18.8"
+    testAnnotationProcessor "org.projectlombok:lombok:1.18.8"
+}
+
+task testCucumber(type: Test) {
+    systemProperty "cucumber.options", System.getProperty("cucumber.options")
+
+    println "Execution with CASINO_HOST=" + System.getProperty("CASINO_HOST")
+    println "Execution with BACKOFFICE_HOST=" + System.getProperty("BACKOFFICE_HOST")
+    println "Execution with MICROGAMING_LOGIN=" + System.getProperty("MICROGAMING_LOGIN")
+    systemProperty "CASINO_HOST", System.getProperty("CASINO_HOST")
+    systemProperty "BACKOFFICE_HOST", System.getProperty("BACKOFFICE_HOST")
+    systemProperty "MICROGAMING_LOGIN", System.getProperty("MICROGAMING_LOGIN")
+    systemProperty "MICROGAMING_PASSWORD", System.getProperty("MICROGAMING_PASSWORD")
+
+    useTestNG() {
+        useDefaultListeners = true
+    }
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+
+    maxHeapSize = "2g"
+}
+
+task testCucumberWithQABot(type: Test) {
+    systemProperty "cucumber.options", System.getProperty("cucumber.options")
+
+    println "Execution with CASINO_HOST=" + System.getProperty("CASINO_HOST")
+    println "Execution with BACKOFFICE_HOST=" + System.getProperty("BACKOFFICE_HOST")
+    systemProperty "CASINO_HOST", System.getProperty("CASINO_HOST")
+    systemProperty "BACKOFFICE_HOST", System.getProperty("BACKOFFICE_HOST")
+
+    systemProperty "BLUEBIRD_QA_BOT_AUTH", System.getProperty("BLUEBIRD_QA_BOT_AUTH")
+    systemProperty "BLUEBIRD_QA_BOT_USERNAME", System.getProperty("BLUEBIRD_QA_BOT_USERNAME")
+
+    useTestNG() {
+        useDefaultListeners = true
+    }
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+
+    maxHeapSize = "2g"
+}
+
+tasks.getByName("generateCucumberReports").mustRunAfter("testCucumber")
+
+cucumberReports {
+    outputDir = file('test-output')
+    buildId = '0'
+    reports = files('test-output/cucumber.json')
+}
+
+checkstyle {
+    configFile file("${rootDir}/checkstyle.xml")
+    toolVersion "8.17"
+    ignoreFailures = false
+}
+
+tasks.withType(Checkstyle) {
+    reports {
+        xml.enabled false
+    }
+}
